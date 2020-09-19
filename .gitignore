@@ -12,3 +12,6 @@
 # pycache
 __pycache__/
 *.py[cod]
+
+# other
+staticfiles/
