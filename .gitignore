@@ -6,6 +6,9 @@
 # Database
 *.sqlite3
 
+#virtual environment
+/env
+
 # pycache
 __pycache__/
 *.py[cod]

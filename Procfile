@@ -1,0 +1,1 @@
+web: gunicorn powerbucket.wsgi --log-file -
