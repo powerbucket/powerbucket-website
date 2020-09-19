@@ -1,0 +1,11 @@
+# backup files
+*.bak
+*~
+/#*/#
+
+# Database
+*.sqlite3
+
+# pycache
+__pycache__/
+*.py[cod]

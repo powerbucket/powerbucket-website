@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Meter Readings</h1>
+  {% if reading_list %}
+  <table>
+    <tr>
+      <th>Time</th>
+      <th>1st Digit</th>
+      <th>2nd Digit</th>
+      <th>3rd Digit</th>
+      <th>4th Digit</th>
+      <th>5th Digit</th>
+    </tr>
+    {% for reading in reading_list %}
+    <tr>
+      <th> {{reading.time}} </th>
+      <th> {{reading.firstNum}} </th>
+      <th> {{reading.secondNum}} </th>
+      <th> {{reading.thirdNum}} </th>
+      <th> {{reading.fourthNum}} </th>
+      <th> {{reading.fifthNum}} </th>      
+    </tr>
+    {% endfor %}
+  </table>
+  
+  {% else %}
+    <p>No readings available</p>
+  {% endif %}       
+{% endblock %}
