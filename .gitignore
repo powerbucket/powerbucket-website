@@ -15,3 +15,6 @@ __pycache__/
 
 # other
 staticfiles/
+
+# logs for when debug is false
+*.log
