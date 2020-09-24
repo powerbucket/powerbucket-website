@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from readings.models import Reading
+from readings.models import Reading, Settings
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views import generic
+from django.forms.models import model_to_dict
 
 # Create your views here.
 def index(request):
@@ -34,7 +35,7 @@ def registration(request):
 
     return render(request, 'registration.html', context)
 
-from readings.forms import SubmissionForm
+from readings.forms import SubmissionForm, SettingsForm
 def submission(request):
     if request.method == 'POST':
         form = SubmissionForm(request.POST)
@@ -49,11 +50,41 @@ def submission(request):
     context = {
         'form': form,
     }
-    
+
     return render(request, 'submission.html', context)
 
+def change_settings(request):
+    if request.method == 'POST':
+        form = SettingsForm(request.POST)
+        if form.is_valid():
+            new_settings = form.save(commit=False)
+            new_settings.user = request.user
+            old_settings,created = Settings.objects.update_or_create(user=request.user,
+                                                                     defaults={'x': new_settings.x,
+                                                                               'y': new_settings.y,
+                                                                               'z': new_settings.z,
+                                                                               'r': new_settings.r,
+                                                                               'update': new_settings.update})
+            old_settings.save()
+            return HttpResponseRedirect('/')
+    else:
+        form = SettingsForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'change_settings.html', context)
+
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+
 class ReadingView(LoginRequiredMixin, generic.ListView):
     model = Reading
     def get_queryset(self):
         return Reading.objects.filter(user=self.request.user)
+
+class SettingsView(LoginRequiredMixin, generic.ListView):
+    model = Settings
+    def get_queryset(self):
+        return Settings.objects.filter(user=self.request.user)

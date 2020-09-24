@@ -1,5 +1,5 @@
 from django import forms
-from readings.models import Reading
+from readings.models import Reading, Settings
     
 class UserRegistrationForm(forms.Form):
     username = forms.CharField(help_text="A unique username")
@@ -13,3 +13,8 @@ class SubmissionForm(forms.ModelForm):
         # widgets = {
         #     'time': forms.DateTimeInput,
         # }
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = Settings
+        fields = ['x', 'y', 'r', 'update']

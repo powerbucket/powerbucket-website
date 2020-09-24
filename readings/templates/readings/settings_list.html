@@ -1,0 +1,26 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Settings</h1>
+  {% if settings_list %}
+  <table>
+    <tr>
+      <th>x</th>
+      <th>y</th>
+      <th>r</th>
+      <th>update</th>
+    </tr>
+    {% for settings in settings_list %}
+    <tr>
+      <th> {{settings.x}} </th>
+      <th> {{settings.y}} </th>
+      <th> {{settings.r}} </th>      
+      <th> {{settings.update}} </th>
+    </tr>
+    {% endfor %}
+  </table>
+  
+  {% else %}
+    <p>Settings not set</p>
+  {% endif %}       
+{% endblock %}

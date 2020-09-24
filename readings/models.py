@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 # Create your models here.
 
 class Reading(models.Model):
@@ -23,3 +26,18 @@ class Reading(models.Model):
     def __str__(self):
         return self.time
 
+class Settings(models.Model):
+    x = models.IntegerField()
+    y = models.IntegerField()
+    r = models.IntegerField()
+    update = models.BooleanField()
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
+
+# @receiver(post_save, sender=User)
+# def create_user_settings(sender, instance, created, **kwargs):
+#     if created:
+#         Settings.objects.create(user=instance)
+
+# @receiver(post_save, sender=User)
+# def save_user_settings(sender, instance, **kwargs):
+#     instance.settings.save()
