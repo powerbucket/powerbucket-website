@@ -62,7 +62,6 @@ def change_settings(request):
             old_settings,created = Settings.objects.update_or_create(user=request.user,
                                                                      defaults={'x': new_settings.x,
                                                                                'y': new_settings.y,
-                                                                               'z': new_settings.z,
                                                                                'r': new_settings.r,
                                                                                'update': new_settings.update})
             old_settings.save()
