@@ -68,6 +68,18 @@ def change_settings(request):
             return HttpResponseRedirect('/')
     else:
         form = SettingsForm()
+        queryset=Settings.objects.filter(user=request.user.id)
+        if queryset.count() != 0:
+            old_settings=queryset.first()
+            form.fields['x'].initial=old_settings.x
+            form.fields['y'].initial=old_settings.y
+            form.fields['r'].initial=old_settings.r
+            form.fields['update'].initial=old_settings.update
+        else:
+            form.fields['x'].initial=0
+            form.fields['y'].initial=0
+            form.fields['r'].initial=0
+            form.fields['update'].initial=True
 
     context = {
         'form': form,
