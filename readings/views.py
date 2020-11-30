@@ -38,7 +38,7 @@ def registration(request):
 from readings.forms import SubmissionForm, SettingsForm
 def submission(request):
     if request.method == 'POST':
-        form = SubmissionForm(request.POST)
+        form = SubmissionForm(request.POST, request.FILES)
         if form.is_valid():
             new_reading = form.save(commit=False)
             new_reading.user = request.user
@@ -90,12 +90,12 @@ def change_settings(request):
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-class ReadingView(LoginRequiredMixin, generic.ListView):
-    model = Reading
-    def get_queryset(self):
-        return Reading.objects.filter(user=self.request.user)
-
 class SettingsView(LoginRequiredMixin, generic.ListView):
     model = Settings
     def get_queryset(self):
         return Settings.objects.filter(user=self.request.user)
+
+class ReadingView(LoginRequiredMixin, generic.ListView):
+    model = Reading
+    def get_queryset(self):
+        return Reading.objects.filter(user=self.request.user)

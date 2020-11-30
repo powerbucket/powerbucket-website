@@ -9,7 +9,7 @@ class UserRegistrationForm(forms.Form):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Reading
-        fields = ['time','firstNum', 'secondNum','thirdNum','fourthNum','fifthNum']
+        fields = ['time','firstNum', 'secondNum','thirdNum','fourthNum','fifthNum', 'picture']
         # widgets = {
         #     'time': forms.DateTimeInput,
         # }

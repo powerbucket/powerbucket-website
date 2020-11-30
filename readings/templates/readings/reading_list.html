@@ -11,15 +11,19 @@
       <th>3rd Digit</th>
       <th>4th Digit</th>
       <th>5th Digit</th>
+      <th>Picture</th>
     </tr>
     {% for reading in reading_list %}
     <tr>
+      {% if reading.picture %}
       <th> {{reading.time}} </th>
-      <th> {{reading.firstNum}} </th>
-      <th> {{reading.secondNum}} </th>
-      <th> {{reading.thirdNum}} </th>
-      <th> {{reading.fourthNum}} </th>
-      <th> {{reading.fifthNum}} </th>      
+      <th> {{reading.firstNum|floatformat:2}} </th>
+      <th> {{reading.secondNum|floatformat:2}} </th>
+      <th> {{reading.thirdNum|floatformat:2}} </th>
+      <th> {{reading.fourthNum|floatformat:2}} </th>
+      <th> {{reading.fifthNum|floatformat:2}} </th>
+      <th> <img src="{{ reading.picture.url }}" alt="img" width="200" height="150"> </th>      
+      {% endif %}
     </tr>
     {% endfor %}
   </table>
