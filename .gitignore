@@ -18,3 +18,5 @@ staticfiles/
 
 # logs for when debug is false
 *.log
+
+/media/upload/*
