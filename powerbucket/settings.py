@@ -135,7 +135,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'powerbucket/staticfiles')
 STATIC_URL = '/static/'
 
 # CSRF sucks, make helpful message
-CSRF_FAILURE_VIEW = 'powerbucket.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'readings.views.csrf_failure'
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
