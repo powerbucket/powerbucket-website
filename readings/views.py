@@ -103,5 +103,5 @@ class ReadingView(LoginRequiredMixin, generic.ListView):
 
 def csrf_failure(request, reason="tits"):
     headers=request.META
-    context = {header: headers[header] for header in headers}
+    context = {"headers": headers} #{header: headers[header] for header in headers}
     return render(request, 'csrf.html', context)

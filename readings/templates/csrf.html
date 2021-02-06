@@ -6,11 +6,10 @@
     </head>
     <body>
       <p>Hello</p>
-      {% for header in headers %}
-        {{ header }}
-      {% for elem in header %}
-      <li> {{ elem }} </li>
-      {% endfor %}
+      {% for key, value in headers %}
+      {{key}}
+      {{value}}
+      
       {% endfor %}
     </body>
 </html>
