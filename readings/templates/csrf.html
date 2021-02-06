@@ -6,8 +6,11 @@
     </head>
     <body>
       <p>Hello</p>
-      {% for header in headers %} 
+      {% for header in headers %}
         {{ header }}
-      {% endfor %} 
+      {% for elem in header %}
+      <li> {{ elem }} </li>
+      {% endfor %}
+      {% endfor %}
     </body>
 </html>
