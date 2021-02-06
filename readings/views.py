@@ -99,3 +99,8 @@ class ReadingView(LoginRequiredMixin, generic.ListView):
     model = Reading
     def get_queryset(self):
         return Reading.objects.filter(user=self.request.user)
+
+
+def csrf_failure(request, reason="tits"):
+    context = {'message': 'some custom messages'}
+    return render(request, 'csrf.html', context)
