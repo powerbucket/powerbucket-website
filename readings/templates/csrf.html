@@ -6,6 +6,8 @@
     </head>
     <body>
       <p>Hello</p>
-        {{ message }}
+      {% for header in headers %} 
+        {{ header }}
+      {% endfor %} 
     </body>
 </html>
