@@ -9,4 +9,11 @@
     <li><strong>Readings:</strong> {{ num_readings }}</li>
     <li><strong>Users:</strong> {{ num_users }}</li>
   </ul>
+  CSRF token is currently {% csrf_token %}
+	
+  {% for key, value in headers.items %}
+      {{ key }}
+      {{ value }}
+  {% endfor %}
+
 {% endblock %}

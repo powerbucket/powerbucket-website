@@ -14,6 +14,7 @@ def index(request):
     context = {
         'num_readings': num_readings,
         'num_users': num_users,
+        'headers': request.META
     }
 
     return render(request, 'index.html', context=context)
@@ -102,6 +103,5 @@ class ReadingView(LoginRequiredMixin, generic.ListView):
 
 
 def csrf_failure(request, reason="tits"):
-    headers=request.META
-    context = {"headers": headers} #{header: headers[header] for header in headers}
+    context = {"headers": request.META} #{header: headers[header] for header in headers}
     return render(request, 'csrf.html', context)
