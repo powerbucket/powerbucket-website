@@ -5,7 +5,8 @@
         <title></title>
     </head>
     <body>
-      <p>Hello</p>
+      CSRF token is currently {% csrf_token %}
+	
       {% for key, value in headers.items %}
       {{ key }}
       {{ value }}
