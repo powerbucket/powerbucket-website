@@ -1,7 +1,8 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <h1>Meter Readings</h1>
+<h1>Meter Readings</h1>
+  <p> {{hello}} </p>
   {% if reading_list %}
   <table>
     <tr>
@@ -22,7 +23,7 @@
       <th> {{reading.thirdNum|floatformat:2}} </th>
       <th> {{reading.fourthNum|floatformat:2}} </th>
       <th> {{reading.fifthNum|floatformat:2}} </th>
-      <th> <img src="{{ reading.picture.url }}" alt="img" width="200" height="150"> </th>      
+      <th> <img src="{{ reading.picture.url }}" alt="img" width="200" height="150"> </th>
       {% endif %}
     </tr>
     {% endfor %}

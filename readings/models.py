@@ -25,7 +25,7 @@ class Reading(models.Model):
         return reverse('reading', args=[str(self.id)])
         
     def __str__(self):
-        return self.time
+        return str(self.time)
 
 class Settings(models.Model):
     x = models.IntegerField()

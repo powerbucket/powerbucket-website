@@ -96,12 +96,30 @@ class SettingsView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         return Settings.objects.filter(user=self.request.user)
 
+from readings.forms import ReadingSelectForm
+def update_readings(request):
+    #user_ob = get_user_model().objects.filter(id=user_id).first()
+    #full_user_profile = UserProfile.objects.filter(user=user_ob).first()
+
+    if request.method == 'POST':
+        print(request.POST)
+        form = ReadingSelectForm(request.user.id,request.POST) #, user_id=request.user.id)
+        if form.is_valid():
+            for reading in form.cleaned_data['readings']:
+                reading.firstNum=0
+                reading.save()
+                
+            return HttpResponseRedirect(reverse('reading_list')) #render(request, 'readings/reading_list.html')
+    else:
+        form = ReadingSelectForm(user=request.user.id)
+        return render(request, 'update_readings.html', {'form' : form})
+    
 class ReadingView(LoginRequiredMixin, generic.ListView):
     model = Reading
+    
     def get_queryset(self):
         return Reading.objects.filter(user=self.request.user)
-
-
+   
 def csrf_failure(request, reason="tits"):
     context = {"headers": request.META} #{header: headers[header] for header in headers}
     return render(request, 'csrf.html', context)
