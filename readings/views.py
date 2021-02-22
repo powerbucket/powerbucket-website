@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.views import generic
 from django.forms.models import model_to_dict
 
+from utils.metron import picture_to_power, picture_to_circle_parameters
+
 # Create your views here.
 def index(request):
     num_readings = Reading.objects.all().count()
@@ -41,9 +43,27 @@ def submission(request):
     if request.method == 'POST':
         form = SubmissionForm(request.POST, request.FILES)
         if form.is_valid():
-            new_reading = form.save(commit=False)
-            new_reading.user = request.user
-            new_reading.save()
+            reading = form.save(commit=False)
+            reading.user = request.user
+            queryset=Settings.objects.filter(user=request.user.id)
+            settings=queryset.first()
+            if settings.update:
+                (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
+                settings.update=False
+                settings.save()
+            #reading.settings=settings
+            numbers=picture_to_power(reading.picture,
+                                     settings.x,
+                                     settings.y,
+                                     settings.r)
+            reading.firstNum=numbers[0]
+            reading.secondNum=numbers[1]
+            reading.thirdNum=numbers[2]
+            reading.fourthNum=numbers[3]
+            reading.fifthNum=numbers[4]
+            reading.save()
+
+            reading.save()
             return HttpResponseRedirect('/')
     else:
         form = SubmissionForm()
@@ -102,11 +122,25 @@ def update_readings(request):
     #full_user_profile = UserProfile.objects.filter(user=user_ob).first()
 
     if request.method == 'POST':
-        print(request.POST)
         form = ReadingSelectForm(request.user.id,request.POST) #, user_id=request.user.id)
         if form.is_valid():
+            queryset=Settings.objects.filter(user=request.user.id)
+            settings=queryset.first()
             for reading in form.cleaned_data['readings']:
-                reading.firstNum=0
+                if settings.update:
+                    (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
+                    settings.update=False
+                    settings.save()
+                #reading.settings=settings
+                numbers=picture_to_power(reading.picture,
+                                         settings.x,
+                                         settings.y,
+                                         settings.r)
+                reading.firstNum=numbers[0]
+                reading.secondNum=numbers[1]
+                reading.thirdNum=numbers[2]
+                reading.fourthNum=numbers[3]
+                reading.fifthNum=numbers[4]
                 reading.save()
                 
             return HttpResponseRedirect(reverse('reading_list')) #render(request, 'readings/reading_list.html')

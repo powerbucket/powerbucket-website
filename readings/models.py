@@ -16,6 +16,7 @@ class Reading(models.Model):
     fourthNum = models.FloatField()
     fifthNum = models.FloatField()
     picture = models.ImageField(upload_to='upload/',null=True,blank=True)
+    #settings = models.ForeignKey(Settings, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     class Meta:
