@@ -11,5 +11,6 @@ urlpatterns += [
     path('change_settings/', views.change_settings, name='change_settings'),
     path('readings/', views.ReadingView.as_view(), name='reading_list'),
     path('update_readings/', views.update_readings, name='update_readings'),
+    path('manual_settings/', views.manual_settings, name='manual_settings'),
 ]
 
