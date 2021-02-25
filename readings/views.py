@@ -120,7 +120,6 @@ def manual_settings(request):
     queryset=Reading.objects.filter()
     first_reading=queryset.first()
     pic_path=first_reading.picture.url
-    print(pic_path)
     return render(request, 'manual_settings.html',{'pic_path': pic_path})
 
 from readings.forms import ReadingSelectForm
