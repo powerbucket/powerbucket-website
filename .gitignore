@@ -8,6 +8,7 @@
 
 #virtual environment
 /env
+/web_env
 
 # pycache
 __pycache__/
@@ -19,4 +20,5 @@ staticfiles/
 # logs for when debug is false
 *.log
 
+upload/*
 /media/upload/*
