@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+
 from datetime import datetime
 
 from django.db.models.signals import post_save
@@ -29,10 +30,11 @@ class Reading(models.Model):
         return str(self.time)
 
 class Settings(models.Model):
-    x = models.IntegerField()
-    y = models.IntegerField()
-    r = models.IntegerField()
-    update = models.BooleanField()
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
+    r = models.IntegerField(default=0)
+    update = models.BooleanField(default=True)
+    calculate_online = models.BooleanField(default=True)
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
 
 # @receiver(post_save, sender=User)

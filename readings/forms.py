@@ -10,8 +10,8 @@ class UserRegistrationForm(forms.Form):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = Reading
-        fields = ['picture']
-        #fields = ['time','firstNum', 'secondNum','thirdNum','fourthNum','fifthNum', 'picture']
+        #fields = ['picture']
+        fields = ['time','firstNum', 'secondNum','thirdNum','fourthNum','fifthNum', 'picture']
         # widgets = {
         #     'time': forms.DateTimeInput,
         # }
@@ -19,7 +19,7 @@ class SubmissionForm(forms.ModelForm):
 class SettingsForm(forms.ModelForm):
     class Meta:
         model = Settings
-        fields = ['x', 'y', 'r', 'update']
+        fields = ['x', 'y', 'r', 'update','calculate_online']
 
 class ReadingSelectForm(forms.Form):
     class Meta:

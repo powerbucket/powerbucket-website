@@ -9,6 +9,7 @@ from django.forms.models import model_to_dict
 from utils.metron import picture_to_power, picture_to_circle_parameters
 
 # Create your views here.
+
 def index(request):
     num_readings = Reading.objects.all().count()
     num_users = User.objects.all().count()
@@ -46,22 +47,33 @@ def submission(request):
             reading = form.save(commit=False)
             reading.user = request.user
             queryset=Settings.objects.filter(user=request.user.id)
+            #### If settings haven't been created yet, set defaults (including calculating settings online)
+            if queryset.count() == 0:
+                old_settings,created = Settings.objects.update_or_create(user=request.user,
+                                                                         defaults={'x': 0,
+                                                                                   'y': 0,
+                                                                                   'r': 0,
+                                                                                   'update': True, 
+                                                                                   'calculate_online': True})
+                old_settings.save()
+            ####
             settings=queryset.first()
             if settings.update:
-                (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
+                if settings.calculate_online:
+                    (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
                 settings.update=False
                 settings.save()
             #reading.settings=settings
-            numbers=picture_to_power(reading.picture,
-                                     settings.x,
-                                     settings.y,
-                                     settings.r)
-            reading.firstNum=numbers[0]
-            reading.secondNum=numbers[1]
-            reading.thirdNum=numbers[2]
-            reading.fourthNum=numbers[3]
-            reading.fifthNum=numbers[4]
-            reading.save()
+            if settings.calculate_online:
+                numbers=picture_to_power(reading.picture,
+                                         settings.x,
+                                         settings.y,
+                                         settings.r)
+                reading.firstNum=numbers[0]
+                reading.secondNum=numbers[1]
+                reading.thirdNum=numbers[2]
+                reading.fourthNum=numbers[3]
+                reading.fifthNum=numbers[4]
 
             reading.save()
             return HttpResponseRedirect('/')
@@ -84,7 +96,8 @@ def change_settings(request):
                                                                      defaults={'x': new_settings.x,
                                                                                'y': new_settings.y,
                                                                                'r': new_settings.r,
-                                                                               'update': new_settings.update})
+                                                                               'update': new_settings.update,
+                                                                               'calculate_online': new_settings.calculate_online})
             old_settings.save()
             return HttpResponseRedirect('/')
     else:
@@ -96,11 +109,15 @@ def change_settings(request):
             form.fields['y'].initial=old_settings.y
             form.fields['r'].initial=old_settings.r
             form.fields['update'].initial=old_settings.update
+            form.fields['calculate_online'].initial=old_settings.calculate_online
         else:
-            form.fields['x'].initial=0
-            form.fields['y'].initial=0
-            form.fields['r'].initial=0
-            form.fields['update'].initial=True
+            old_settings,created = Settings.objects.update_or_create(user=request.user,
+                                                                     defaults={'x': 0,
+                                                                               'y': 0,
+                                                                               'r': 0,
+                                                                               'update': True, 
+                                                                               'calculate_online': True})
+            old_settings.save()
 
     context = {
         'form': form,
@@ -117,7 +134,7 @@ class SettingsView(LoginRequiredMixin, generic.ListView):
         return Settings.objects.filter(user=self.request.user)
 
 def manual_settings(request):
-    queryset=Reading.objects.filter()
+    queryset=Reading.objects.filter(user=request.user.id)
     first_reading=queryset.first()
     pic_path=first_reading.picture.url
     return render(request, 'manual_settings.html',{'pic_path': pic_path})
@@ -163,3 +180,4 @@ class ReadingView(LoginRequiredMixin, generic.ListView):
 def csrf_failure(request, reason="tits"):
     context = {"headers": request.META} #{header: headers[header] for header in headers}
     return render(request, 'csrf.html', context)
+
