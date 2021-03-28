@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.views import generic
 from django.forms.models import model_to_dict
 
+import datetime
+
 from utils.metron import picture_to_power, picture_to_circle_parameters
 
 # Create your views here.
@@ -74,6 +76,8 @@ def submission(request):
                 reading.thirdNum=numbers[2]
                 reading.fourthNum=numbers[3]
                 reading.fifthNum=numbers[4]
+            if reading.time<datetime.datetime(2000,1,1):
+                reading.time=datetime.datetime.now()
 
             reading.save()
             return HttpResponseRedirect('/')
