@@ -20,5 +20,5 @@ staticfiles/
 # logs for when debug is false
 *.log
 
-upload/*
+/media/upload/*
 /media/*
