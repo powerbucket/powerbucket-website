@@ -10,6 +10,9 @@ import datetime
 
 from utils.metron import picture_to_power, picture_to_circle_parameters
 
+ANALOG=0
+DIGITAL=1
+
 # Create your views here.
 
 def index(request):
@@ -52,8 +55,12 @@ def submission(request):
             #### If settings haven't been created yet, set defaults (including calculating settings online)
             if queryset.count() == 0:
                 old_settings,created = Settings.objects.update_or_create(user=request.user,
-                                                                         defaults={'x': 0,
+                                                                         defaults={'meter_type': ANALOG,
+                                                                                   'x': 0,
                                                                                    'y': 0,
+                                                                                   's': 0,
+                                                                                   'h': 0,
+                                                                                   'w': 0,
                                                                                    'r': 0,
                                                                                    'update': True, 
                                                                                    'calculate_online': True})
@@ -62,15 +69,23 @@ def submission(request):
             settings=queryset.first()
             if settings.update:
                 if settings.calculate_online:
-                    (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
+                    if settings.meter_type==ANALOG:
+                        (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
+                    elif settings.meter_type==DIGITAL:
+                        # ENE202: REPLACE THIS WITH parameter-finding algo 
+                        (settings.x,settings.y,settings.s,settings.w,settings.h)=(0,0,1,1,1)
                 settings.update=False
                 settings.save()
             #reading.settings=settings
             if settings.calculate_online:
-                numbers=picture_to_power(reading.picture,
-                                         settings.x,
-                                         settings.y,
-                                         settings.r)
+                if settings.meter_type==ANALOG:
+                    numbers=picture_to_power(reading.picture,
+                                             settings.x,
+                                             settings.y,
+                                             settings.r)
+                elif settings.meter_type==DIGITAL:
+                    # ENE202: REPLACE THIS WITH number-finding algo
+                    numbers=(5,5,5,5,5)
                 reading.firstNum=numbers[0]
                 reading.secondNum=numbers[1]
                 reading.thirdNum=numbers[2]
@@ -97,8 +112,12 @@ def change_settings(request):
             new_settings = form.save(commit=False)
             new_settings.user = request.user
             old_settings,created = Settings.objects.update_or_create(user=request.user,
-                                                                     defaults={'x': new_settings.x,
+                                                                     defaults={'meter_type': new_settings.meter_type,
+                                                                               'x': new_settings.x,
                                                                                'y': new_settings.y,
+                                                                               's': new_settings.s,
+                                                                               'w': new_settings.w,
+                                                                               'h': new_settings.h,
                                                                                'r': new_settings.r,
                                                                                'update': new_settings.update,
                                                                                'calculate_online': new_settings.calculate_online})
@@ -109,16 +128,24 @@ def change_settings(request):
         queryset=Settings.objects.filter(user=request.user.id)
         if queryset.count() != 0:
             old_settings=queryset.first()
+            form.fields['meter_type'].initial=old_settings.meter_type
             form.fields['x'].initial=old_settings.x
             form.fields['y'].initial=old_settings.y
             form.fields['r'].initial=old_settings.r
+            form.fields['s'].initial=old_settings.s
+            form.fields['w'].initial=old_settings.w
+            form.fields['h'].initial=old_settings.h
             form.fields['update'].initial=old_settings.update
             form.fields['calculate_online'].initial=old_settings.calculate_online
         else:
             old_settings,created = Settings.objects.update_or_create(user=request.user,
-                                                                     defaults={'x': 0,
+                                                                     defaults={'meter_type': ANALOG,
+                                                                               'x': 0,
                                                                                'y': 0,
                                                                                'r': 0,
+                                                                               's': 0,
+                                                                               'w': 0,
+                                                                               'h': 0,
                                                                                'update': True, 
                                                                                'calculate_online': True})
             old_settings.save()
@@ -141,7 +168,10 @@ def manual_settings(request):
     queryset=Reading.objects.filter(user=request.user.id)
     first_reading=queryset.first()
     pic_path=first_reading.picture.url
-    return render(request, 'manual_settings.html',{'pic_path': pic_path})
+    queryset=Settings.objects.filter(user=request.user.id)
+    settings=queryset.first()
+    return render(request, 'manual_settings.html',{'meter_is_analog': settings.meter_type==ANALOG,
+                                                   'pic_path': pic_path})
 
 from readings.forms import ReadingSelectForm
 def update_readings(request):
@@ -155,14 +185,20 @@ def update_readings(request):
             settings=queryset.first()
             for reading in form.cleaned_data['readings']:
                 if settings.update:
-                    (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
+                    if settings.meter_type==ANALOG:
+                        (settings.x,settings.y,settings.r)=picture_to_circle_parameters(reading.picture)
+                    elif settings.meter_type==DIGITAL:
+                        (settings.x, settings.y, settings.s, settings.w, settings.h)=(1,1,1,1,1)
                     settings.update=False
                     settings.save()
                 #reading.settings=settings
-                numbers=picture_to_power(reading.picture,
-                                         settings.x,
-                                         settings.y,
-                                         settings.r)
+                if settings.meter_type==ANALOG:
+                    numbers=picture_to_power(reading.picture,
+                                             settings.x,
+                                             settings.y,
+                                             settings.r)
+                elif settings.meter_type==DIGITAL:
+                    numbers=(6,6,6,6,6)
                 reading.firstNum=numbers[0]
                 reading.secondNum=numbers[1]
                 reading.thirdNum=numbers[2]

@@ -19,7 +19,10 @@ class SubmissionForm(forms.ModelForm):
 class SettingsForm(forms.ModelForm):
     class Meta:
         model = Settings
-        fields = ['x', 'y', 'r', 'update','calculate_online']
+        fields = ['meter_type',
+                  'x', 'y', 'r',
+                  's', 'w', 'h',
+                  'update','calculate_online']
 
 class ReadingSelectForm(forms.Form):
     class Meta:

@@ -33,9 +33,22 @@ class Settings(models.Model):
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
     r = models.IntegerField(default=0)
+    s = models.IntegerField(default=0)
+    w = models.IntegerField(default=0)
+    h = models.IntegerField(default=0)
+    ANALOG=0
+    DIGITAL=1
+    METER_TYPE_CHOICES=[
+        (ANALOG, 'Analog'),
+        (DIGITAL, 'Digital'),
+    ]
+    meter_type = models.IntegerField(choices=METER_TYPE_CHOICES,
+                                     default=ANALOG)
     update = models.BooleanField(default=True)
     calculate_online = models.BooleanField(default=True)
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User,
+                                on_delete=models.SET_NULL,
+                                null=True)
 
 # @receiver(post_save, sender=User)
 # def create_user_settings(sender, instance, created, **kwargs):

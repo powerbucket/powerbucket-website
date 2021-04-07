@@ -1,25 +1,31 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-<div>
-  <div id="canvasesdiv" style="position:relative; height=500; width=400">
+  <div id="canvasesdiv" style="position:relative; height=600; width=600">
     <canvas id="picCanvas"
 	    style="z-index: 1;
 		   position:absolute;
 		   left:0px;
 		   top:0px;
-		   " height="400" width="400">
+		   " height="600" width="600">
       This text is displayed if your browser does not support HTML5 Canvas.
     </canvas>
     <canvas id="shapeCanvas"
+	    {% if meter_is_analog %}
 	    onmousemove="makeCircle(event)"
-	    onwheel="resize(event)"
-	    onclick="writeCoords(event)"
+	    onwheel="resizeCircle(event)"
+	    onclick="writeCoordsCircle(event)"
+	    {% else %}
+	    onmousemove="makeRect(event)"
+	    onwheel="updateSpaceRect(event)"
+	    onkeypress="resizeRect(event)"
+	    onclick="writeCoordsRect(event)"
+	    {% endif %}
 	    style="z-index: 2;
 		   position:relative;
 		   left:0px;
 		   top:0px;
-		   " height="400" width="400">
+		   " height="600" width="600">
       This text is displayed if your browser does not support HTML5 Canvas.
     </canvas>
   </div>
@@ -27,96 +33,196 @@
   <div id="fluidText" style="z-index:3;">
     <p id="fluidCoords"></p>
   </div>
-
+  
   <div id="fixedText" style="z-index:3;">
     <p id="fixedCoords"></p>
   </div>
-
+  
   <script>
     var canvas = document.getElementById("shapeCanvas");
     var ctx = canvas.getContext("2d");
     
+    canvas.setAttribute("tabindex",'0');
+    canvas.focus();
+    
     var radius = 20;
+    var wid = 20;
+    var ht = 20;
+    var space = 20;
+    var X = 0;
+    var Y = 0;
     var scale_factor;
     var old_pic_width;
     var old_pic_height;
-      var new_pic_width;
-      var new_pic_height;
-      
-      window.onload = function() {
-	  var picCanvas = document.getElementById("picCanvas");
-	  var picCtx = picCanvas.getContext("2d");
-	  var img = new Image();
-	  img.src = " {{ pic_path }}";
-	  // make sure image has time to load before trying to draw
-	  // else will sometimes be blank
-	  img.onload=function() {
-	      old_pic_width=this.width;
-	      old_pic_height=this.height;
-	      if (old_pic_width>old_pic_height) {
-		  new_pic_width=400;
-                  new_pic_height=Math.round(400*(old_pic_height/old_pic_width));
-              }
-              else {
-                  new_pic_height=400;
-                  new_pic_width=Math.round(400*(old_pic_width/old_pic_height));
-              }
-	      picCtx.drawImage(img, 0, 0, new_pic_width, new_pic_height);
-	  }
-      }
-      
-      function makeCircle(evt) {
-	  var pos = getMousePos(canvas, evt);
-	  ctx.clearRect(0, 0, canvas.width, canvas.height);
-	  ctx.lineWidth=5;
-	  ctx.strokeStyle = '#FF0000';
-	  for (i=0; i<5; i++) {
-	      ctx.beginPath();
-	      ctx.arc(pos.x+2*radius*(i-2), pos.y, radius, 0, 2 * Math.PI);
-	      ctx.stroke();
-	      ctx.closePath();
-	  }
-	  var trueCoords = getPicCoords(canvas, evt);
-	  var myText = "X: " + trueCoords.x + ", Y: " + trueCoords.y + ", R: " + trueCoords.r;
-	  document.getElementById("fluidCoords").innerHTML = myText;
-      };
+    var new_pic_width;
+    var new_pic_height;
+    
+    window.onload = function() {
+	var picCanvas = document.getElementById("picCanvas");
+	var picCtx = picCanvas.getContext("2d");
+	var img = new Image();
+	img.src = " {{ pic_path }}";
+	// make sure image has time to load before trying to draw
+	// else will sometimes be blank
+	img.onload=function() {
+	    old_pic_width=this.width;
+	    old_pic_height=this.height;
+	    if (old_pic_width>old_pic_height) {
+		new_pic_width=600;
+                new_pic_height=Math.round(600*(old_pic_height/old_pic_width));
+            }
+            else {
+                new_pic_height=600;
+                new_pic_width=Math.round(600*(old_pic_width/old_pic_height));
+            }
+	    picCtx.drawImage(img, 0, 0, new_pic_width, new_pic_height);
+	}
+    }
+        
+    function makeRect(evt) {
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.lineWidth=2;
+	ctx.strokeStyle = '#FF0000';
+	
+	if (evt.clientX) {
+	    updateMousePos(evt)
+	}
+	
+	for (i=0; i<5; i++) {
+    	    ctx.beginPath();
+            ctx.rect(X+(wid+space)*i,Y,wid,ht);
+            ctx.stroke();
+            ctx.closePath();
+	}
+	var trueCoords = getPicCoordsRect(canvas, evt);
+	var myText = "X: "+ trueCoords.x + ", Y: " + trueCoords.y + ", W: " + trueCoords.w + ", H:" + trueCoords.h+", S:"+trueCoords.s;
+	document.getElementById("fluidCoords").innerHTML = myText;
+    };
+    
+    // resize based on key press
+    function resizeRect(evt){
+	var key = evt.keyCode; // alert(evt.keyCode)
+	// w key, increase height
+	if(key == 119) {
+            ht+=3;
+	    ht=Math.max(ht,0);
+	    ht=Math.min(ht,canvas.width/10,canvas.height/10);
+	    makeRect(evt);
+   	}	
+	// s key, decrease height
+	if(key == 115) {
+            ht-=3;
+            ht=Math.max(ht,0);
+            ht=Math.min(ht,canvas.width/10,canvas.height/10);
+            makeRect(evt);
+	}
+	// a key, decrease width
+	if(key == 97) {
+            wid-=3;
+            wid=Math.max(wid,0);
+            wid=Math.min(wid,canvas.width/10,canvas.height/10);
+            makeRect(evt);
+	}
+	// d key, increase width
+	if(key == 100) {
+            wid+=3;
+            wid=Math.max(wid,0);
+            wid=Math.min(wid,canvas.width/10,canvas.height/10);
+            makeRect(evt);
+	}
+    }; 
+    
+    
+    function makeCircle(evt) {
+	if (evt.clientX) {
+	    updateMousePos(evt);
+	}
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.lineWidth=5;
+	ctx.strokeStyle = '#FF0000';
+	for (i=0; i<5; i++) {
+	    ctx.beginPath();
+	    ctx.arc(X+2*radius*(i-2), Y, radius, 0, 2 * Math.PI);
+	    ctx.stroke();
+	    ctx.closePath();
+	}
+	var trueCoords = getPicCoordsCircle(canvas, evt);
+	var myText = "X: " + trueCoords.x + ", Y: " + trueCoords.y + ", R: " + trueCoords.r;
+	document.getElementById("fluidCoords").innerHTML = myText;
+    };
+    
+    // resize based on mouse scroll
+    function resizeCircle(evt) {
+	radius+=event.deltaY*.1;
+	radius=Math.max(radius,0);
+	radius=Math.min(radius,canvas.width/10,canvas.height/10);
+	makeCircle(evt);
+    };
 
-      // resize based on mouse scroll
-      function resize(evt) {
-	  radius+=event.deltaY*.1;
-	  radius=Math.max(radius,0);
-	  radius=Math.min(radius,canvas.width/10,canvas.height/10);
-	  makeCircle(evt);
-      };
+    function updateSpaceRect(evt) {
+	space+=event.deltaY*.1;
+	space=Math.max(space,0);
+	space=Math.min(space,wid);
+	makeRect(evt);
+    };
 
-      function writeCoords(evt) {
-	  //var canvas = document.getElementById("shapeCanvas");
-	  //var ctx = canvas.getContext("2d");
-	  var picCoords = getPicCoords(canvas, evt);
-	  var coords = "X: " + Math.round(picCoords.x)
-	      + ", Y: " + Math.round(picCoords.y)
-	      + ", R: " + Math.round(picCoords.r);
-	  document.getElementById("fixedCoords").innerHTML = coords;
-      }
+    function writeCoordsCircle(evt) {
+	//var canvas = document.getElementById("shapeCanvas");
+	//var ctx = canvas.getContext("2d");
+	var picCoords = getPicCoordsCircle(canvas, evt);
+	var coords = "X: " + Math.round(picCoords.x)
+	    + ", Y: " + Math.round(picCoords.y)
+	    + ", R: " + Math.round(picCoords.r);
+	document.getElementById("fixedCoords").innerHTML = coords;
+    }
 
-    function getPicCoords(canvas, evt) {
-	var pos = getMousePos(canvas, evt);
+    function writeCoordsRect(evt) {
+	//var canvas = document.getElementById("shapeCanvas");
+	//var ctx = canvas.getContext("2d");
+	var picCoords = getPicCoordsRect(canvas, evt);
+	var coords = "X: " + Math.round(picCoords.x)
+	    + ", Y: " + Math.round(picCoords.y)
+	    + ", s: " + Math.round(picCoords.s)
+	    + ", w: " + Math.round(picCoords.w)
+	    + ", h: " + Math.round(picCoords.h)
+	document.getElementById("fixedCoords").innerHTML = coords;
+    }
+    
+    function getPicCoordsCircle(canvas, evt) {
 	var scale_factor = (old_pic_width/new_pic_width)
 	return {
-	    x: pos.x*scale_factor-4*radius*scale_factor,
-	    y: (new_pic_height-pos.y)*scale_factor,
+	    x: X*scale_factor-5*radius*scale_factor,
+	    y: (new_pic_height-Y)*scale_factor,
 	    r: radius*scale_factor
 	}
     }
     
-      function getMousePos(canvas, evt) {
-	  var rect = canvas.getBoundingClientRect();
-	  return {
-	      x: evt.clientX - rect.left,
-	      y: evt.clientY - rect.top,
-	  };
-      }
-      
+    function getPicCoordsRect(canvas, evt) {
+	var scale_factor = (old_pic_width/new_pic_width)
+	return {
+	    x: X*scale_factor,
+	    y: (new_pic_height-Y)*scale_factor,
+	    h: ht*scale_factor,
+	    w: wid*scale_factor,
+	    s: space*scale_factor,
+	}
+    }
+    
+    function getMousePos(canvas, evt) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+	    x: evt.clientX - rect.left,
+	    y: evt.clientY - rect.top,
+	};
+    }
+    
+    function updateMousePos(evt) {
+	var rect = canvas.getBoundingClientRect();
+	X = evt.clientX - rect.left;
+	Y = evt.clientY - rect.top;
+    }
+    
   </script>
-
-    {% endblock %}
+  
+{% endblock %}
+  
