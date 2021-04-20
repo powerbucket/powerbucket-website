@@ -2,8 +2,7 @@
 
 {% block content %}
 <h1>Meter Readings</h1>
-  <p> {{hello}} </p>
-  {% if reading_list %}
+  {% if page_obj %} 
   <table>
     <tr>
       <th>Time</th>
@@ -14,7 +13,7 @@
       <th>5th Digit</th>
       <th>Picture</th>
     </tr>
-    {% for reading in reading_list %}
+    {% for reading in page_obj %}
     <tr>
       {% if reading.picture %}
       <th> {{reading.time}} </th>
@@ -28,6 +27,23 @@
     </tr>
     {% endfor %}
   </table>
+  <div>
+    <span>
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
   
   {% else %}
     <p>No readings available</p>

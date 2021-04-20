@@ -213,6 +213,7 @@ def update_readings(request):
     
 class ReadingView(LoginRequiredMixin, generic.ListView):
     model = Reading
+    paginate_by=4
     
     def get_queryset(self):
         return Reading.objects.filter(user=self.request.user)
